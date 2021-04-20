@@ -77,7 +77,7 @@ var defaultSettings = {
   "jpg_quality": 60,
   "center_html_output": true,
   "use_2x_images_if_possible": true,
-  "use_lazy_loader": true,
+  "use_lazy_loader": false,
   "include_resizer_classes": false, // Triggers an error (feature was removed)
   "include_resizer_widths": true,
   "include_resizer_script": true,
@@ -3888,6 +3888,11 @@ function generatePageCss(containerId, settings) {
     css += t3 + 'max-width:' + settings.max_width + 'px;';
     css += blockEnd;
   }
+  //no margin/padding on body
+  css += t2 + 'body {';
+  css += t3 + 'margin:0 !important;';
+  css += t3 + 'padding:0 !important;';
+  css += blockEnd;
   if (isTrue(settings.center_html_output)) {
     css += blockStart + ',\r' + blockStart + '.' + nameSpace + 'artboard {';
     css += t3 + 'margin:0 auto;';
@@ -4116,7 +4121,8 @@ function generateOutputHtml(content, pageName, settings) {
   }
   
   if (isTrue(settings.include_pym)) {
-    var pymJs = '<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>\r<script type="text/javascript">\r\t var pymChild = new pym.Child();\r</script>\r';
+    var pymJs = '<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>\r' +
+        '<script type="text/javascript">\r\t var pymChild = new pym.Child();\r pymChild.sendHeight();\r</script>\r';
   }
 
   // comments
@@ -4149,7 +4155,7 @@ function generateOutputHtml(content, pageName, settings) {
     '\r</style>\r';
 
   // JS
-  js = content.js + pymJs + responsiveJs;
+  js = content.js + responsiveJs + pymJs;
 
   textForFile =  '\r' + commentBlock + css + '\r' + html + '\r' + js +
      '<!-- End ai2html' + ' - ' + getDateTimeStamp() + ' -->\r';
