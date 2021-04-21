@@ -4191,7 +4191,7 @@ function generateOutputHtml(content, pageName, settings) {
     html += '</div>\r';
   }
 
-  html += '<div id="' + containerId + '" class="ai2html">\r';
+  html += '<div id="' + containerId + '" class="ai2html" role="img" aria-label="' + graphic_config.alttext + '">\r';
   if (linkSrc) {
     // optional link around content
     html += '\t<a class="' + nameSpace + 'ai2htmlLink" href="' + linkSrc + '">\r';

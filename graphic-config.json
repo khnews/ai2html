@@ -3,5 +3,6 @@
   "dek": "This a KHN chart dek in sentence case",
   "note": "NOTE: This a footnote.",
   "source": "SOURCES: List of data sources",
-  "credit": "CREDIT: Full Name/KHN"
+  "credit": "CREDIT: Full Name/KHN",
+  "alttext": "This is a description of what is in the chart and key takeaways for screen reader users."
 }
