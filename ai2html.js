@@ -58,7 +58,7 @@ var defaultSettings = {
   "promo_image_width": 1024,
   "image_format": ["auto"],  // Options: auto, png, png24, jpg, svg
   "write_image_files": true,
-  "responsiveness": "dynamic", // Options: fixed, dynamic
+  "responsiveness": "fixed", // Options: fixed, dynamic
   "max_width": "",
   "output": "one-file",      // Options: one-file, multiple-files
   "project_name": "",        // Defaults to the name of the AI file
@@ -80,7 +80,7 @@ var defaultSettings = {
   "use_lazy_loader": false,
   "include_resizer_classes": false, // Triggers an error (feature was removed)
   "include_resizer_widths": true,
-  "include_resizer_script": true,
+  "include_resizer_script": false,
   "include_pym": true,
   "inline_svg": false, // Embed background image SVG in HTML instead of loading a file
   "svg_id_prefix": "", // Prefix SVG ids with a string to disambiguate from other ids on the page
@@ -90,6 +90,8 @@ var defaultSettings = {
   "testing_mode": false,  // Render text in both bg image and HTML to test HTML text placement
   "show_completion_dialog_box": true,
   "clickable_link": "",  // Add a URL to make the entire graphic a clickable link
+  "graphic_config": "",
+  "graphic_css": "khn-graphic.css", //style for chart header and footer
   "last_updated_text": "",
   "headline": "",
   "leadin": "",
@@ -3859,6 +3861,9 @@ function generateArtboardDiv(ab, settings) {
 }
 
 function generateArtboardCss(ab, textClasses, settings) {
+  //get widths in order to generate display css
+  var widthRange = getArtboardWidthRange(ab, settings);
+  
   var t3 = '\t',
       t4 = t3 + '\t',
       abId = '#' + nameSpace + getArtboardFullName(ab, settings),
@@ -3866,7 +3871,22 @@ function generateArtboardCss(ab, textClasses, settings) {
   css += t3 + abId + ' {\r';
   css += t4 + 'position:relative;\r';
   css += t4 + 'overflow:hidden;\r';
+  //don't display on wrong widths
+  css += t4 + 'display:none;\r';
   css += t3 + '}\r';
+  
+  //display when it's the right width
+  if(isFalse(settings.include_resizer_script)) {
+    if (widthRange[1] == Infinity) {
+      css += t3 + '@media screen and (min-width: ' +  widthRange[0] + 'px) {\r';
+    } else {
+      css += t3 + '@media screen and (max-width: ' + widthRange[1] + 'px) and (min-width: ' +  widthRange[0] + 'px) {\r';
+    }
+    css += t3 + abId + ' {\r';
+    css += t4 + 'display: block !important;\r';
+    css += t3 + '}\r}\r';
+  }
+
 
   // classes for paragraph and character styles
   forEach(textClasses, function(cssBlock) {
@@ -3882,7 +3902,7 @@ function generatePageCss(containerId, settings) {
   var t3 = '\r\t\t';
   var blockStart = t2 + '#' + containerId + ' ';
   var blockEnd = '\r' + t2 + '}\r';
-
+  
   if (settings.max_width) {
     css += blockStart + '{';
     css += t3 + 'max-width:' + settings.max_width + 'px;';
@@ -3893,6 +3913,7 @@ function generatePageCss(containerId, settings) {
   css += t3 + 'margin:0 !important;';
   css += t3 + 'padding:0 !important;';
   css += blockEnd;
+
   if (isTrue(settings.center_html_output)) {
     css += blockStart + ',\r' + blockStart + '.' + nameSpace + 'artboard {';
     css += t3 + 'margin:0 auto;';
@@ -4105,6 +4126,10 @@ function addCustomContent(content, customBlocks) {
     content.js += '\r<!-- Custom JS -->\r' + customBlocks.js.join('\r') + '\r';
   }
 }
+  
+  //json2 from https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js
+  "object"!=typeof JSON&&(JSON={}),function(){"use strict";function f(t){return t<10?"0"+t:t}function this_value(){return this.valueOf()}function quote(t){return rx_escapable.lastIndex=0,rx_escapable.test(t)?'"'+t.replace(rx_escapable,function(t){var e=meta[t];return"string"==typeof e?e:"\\u"+("0000"+t.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+t+'"'}function str(t,e){var r,n,o,u,f,a=gap,i=e[t];switch(i&&"object"==typeof i&&"function"==typeof i.toJSON&&(i=i.toJSON(t)),"function"==typeof rep&&(i=rep.call(e,t,i)),typeof i){case"string":return quote(i);case"number":return isFinite(i)?String(i):"null";case"boolean":case"null":return String(i);case"object":if(!i)return"null";if(gap+=indent,f=[],"[object Array]"===Object.prototype.toString.apply(i)){for(u=i.length,r=0;r<u;r+=1)f[r]=str(r,i)||"null";return o=0===f.length?"[]":gap?"[\n"+gap+f.join(",\n"+gap)+"\n"+a+"]":"["+f.join(",")+"]",gap=a,o}if(rep&&"object"==typeof rep)for(u=rep.length,r=0;r<u;r+=1)"string"==typeof rep[r]&&(n=rep[r],o=str(n,i),o&&f.push(quote(n)+(gap?": ":":")+o));else for(n in i)Object.prototype.hasOwnProperty.call(i,n)&&(o=str(n,i),o&&f.push(quote(n)+(gap?": ":":")+o));return o=0===f.length?"{}":gap?"{\n"+gap+f.join(",\n"+gap)+"\n"+a+"}":"{"+f.join(",")+"}",gap=a,o}}var rx_one=/^[\],:{}\s]*$/,rx_two=/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,rx_three=/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,rx_four=/(?:^|:|,)(?:\s*\[)+/g,rx_escapable=/[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,rx_dangerous=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;"function"!=typeof Date.prototype.toJSON&&(Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+f(this.getUTCMonth()+1)+"-"+f(this.getUTCDate())+"T"+f(this.getUTCHours())+":"+f(this.getUTCMinutes())+":"+f(this.getUTCSeconds())+"Z":null},Boolean.prototype.toJSON=this_value,Number.prototype.toJSON=this_value,String.prototype.toJSON=this_value);var gap,indent,meta,rep;"function"!=typeof JSON.stringify&&(meta={"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},JSON.stringify=function(t,e,r){var n;if(gap="",indent="","number"==typeof r)for(n=0;n<r;n+=1)indent+=" ";else"string"==typeof r&&(indent=r);if(rep=e,e&&"function"!=typeof e&&("object"!=typeof e||"number"!=typeof e.length))throw new Error("JSON.stringify");return str("",{"":t})}),"function"!=typeof JSON.parse&&(JSON.parse=function(text,reviver){function walk(t,e){var r,n,o=t[e];if(o&&"object"==typeof o)for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(n=walk(o,r),void 0!==n?o[r]=n:delete o[r]);return reviver.call(t,e,o)}var j;if(text=String(text),rx_dangerous.lastIndex=0,rx_dangerous.test(text)&&(text=text.replace(rx_dangerous,function(t){return"\\u"+("0000"+t.charCodeAt(0).toString(16)).slice(-4)})),rx_one.test(text.replace(rx_two,"@").replace(rx_three,"]").replace(rx_four,"")))return j=eval("("+text+")"),"function"==typeof reviver?walk({"":j},""):j;throw new SyntaxError("JSON.parse")})}();
+//# sourceMappingURL=json2.min.js.map
 
 // Wrap content HTML in a <div>, add styles and resizer script, write to a file
 function generateOutputHtml(content, pageName, settings) {
@@ -4122,8 +4147,9 @@ function generateOutputHtml(content, pageName, settings) {
   
   if (isTrue(settings.include_pym)) {
     var pymJs = '<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>\r' +
-        '<script type="text/javascript">\r\t var pymChild = new pym.Child();\r pymChild.sendHeight();\r</script>\r';
+        '<script type="text/javascript">\r\t var pymChild = new pym.Child();\r\t pymChild.sendHeight();\r</script>\r';
   }
+  
 
   // comments
   commentBlock = '<!-- Generated by ai2html v' + scriptVersion + ' - ' +
@@ -4137,7 +4163,35 @@ function generateOutputHtml(content, pageName, settings) {
   }
 
   // HTML
-  html = '<div id="' + containerId + '" class="ai2html">\r';
+  // readFile code from https://github.com/newsdev/ai-scripts
+  function readFile(filename) {
+    var fileObj = new File(filename);
+    fileObj.open('r');
+    fileObj.seek(0, 0);
+    var out = '';
+    while(!fileObj.eof) {
+        out += fileObj.readln()+'\n';
+    }
+    fileObj.close();
+    return out;
+  }
+
+  //get info on chart hed, dek etc from json file
+  var graphic_config_file = app.activeDocument.path + '/graphic-config.json';
+  var jsonStr = readFile(graphic_config_file);
+  graphic_config = JSON.parse(jsonStr);
+
+  html = "";
+  //graphic hed, dek, etc
+  if (graphic_config.hed) {
+    html += '<div class="graphic-header">\r\t<h3 class="graphic-hed">' + graphic_config.hed + '</h3>\r';
+    if (graphic_config.dek) {
+      html += '<h4 class="graphic-dek">' + graphic_config.dek + '</h4>\r';
+    }
+    html += '</div>\r';
+  }
+
+  html += '<div id="' + containerId + '" class="ai2html">\r';
   if (linkSrc) {
     // optional link around content
     html += '\t<a class="' + nameSpace + 'ai2htmlLink" href="' + linkSrc + '">\r';
@@ -4147,9 +4201,25 @@ function generateOutputHtml(content, pageName, settings) {
     html += '\t</a>\r';
   }
   html += '\r</div>\r';
+  
+  //footer
+  if (graphic_config.note || graphic_config.source || graphic_config.credit) {
+    html += '<div class="graphic-footer">\r';
+    if (graphic_config.note) {
+      html += '\t<div class="graphic-foot">' + graphic_config.note + '</div>\r';
+    }
+    if (graphic_config.credit) {
+      html += '\t<div class="graphic-foot">' + graphic_config.credit + '</div>\r';
+    }
+    if (graphic_config.source) {
+      html += '\t<div class="graphic-foot">' + graphic_config.source + '</div>\r';
+    }
+    html += '</div>';
+  }
 
   // CSS
-  css = '<style media="screen,print">\r' +
+  //uses custom khn style file for header and footer
+  css = '<link rel="stylesheet" href="khn-graphic.css">\r<style media="screen,print">\r' +
     generatePageCss(containerId, settings) +
     content.css +
     '\r</style>\r';

@@ -2,6 +2,15 @@
 
 > ai2html is an open-source script for Adobe Illustrator that converts your Illustrator documents into html and css.
 
+## KHN customization of ai2html
+This ai2html.js script creates output that's designed to work with pym.js and our CMS. 
+
+It's designed to create a full graphic file including header and footer text without requiring node or any JS frameworks. Graphics header and footer text is entered into [graphic-config.json](graphic-config.json), which is injected into the resulting html file in the ai2html script. A companion CSS file containing header and footer styles is also referenced in the script to style that text.
+
+It uses CSS `display:none;` based on artboard and screen size to toggle which artboard appears rather than JS.
+
+## Original readme
+
 Here are [examples of how we’ve used the script](https://del.icio.us/archietse/ai2html,nyt) at The New York Times and [examples of how others](https://del.icio.us/archietse/ai2html,others) have used it. Share your ai2html projects on Twitter, Delicious, etc. using #ai2html.
 
 For documentation and examples on [how to use ai2html](http://ai2html.org), please visit [ai2html.org](http://ai2html.org).
