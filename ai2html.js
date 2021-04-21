@@ -3909,7 +3909,7 @@ function generatePageCss(containerId, settings) {
     css += blockEnd;
   }
   //no margin/padding on body
-  css += t2 + 'body {';
+  css += t2 + 'body, figure {';
   css += t3 + 'margin:0 !important;';
   css += t3 + 'padding:0 !important;';
   css += blockEnd;
@@ -4181,7 +4181,7 @@ function generateOutputHtml(content, pageName, settings) {
   var jsonStr = readFile(graphic_config_file);
   graphic_config = JSON.parse(jsonStr);
 
-  html = "";
+  html = "<figure>\r";
   //graphic hed, dek, etc
   if (graphic_config.hed) {
     html += '<div class="graphic-header">\r\t<h3 class="graphic-hed">' + graphic_config.hed + '</h3>\r';
@@ -4204,7 +4204,7 @@ function generateOutputHtml(content, pageName, settings) {
   
   //footer
   if (graphic_config.note || graphic_config.source || graphic_config.credit) {
-    html += '<div class="graphic-footer">\r';
+    html += '<figcaption class="graphic-footer">\r';
     if (graphic_config.note) {
       html += '\t<div class="graphic-foot">' + graphic_config.note + '</div>\r';
     }
@@ -4214,7 +4214,7 @@ function generateOutputHtml(content, pageName, settings) {
     if (graphic_config.source) {
       html += '\t<div class="graphic-foot">' + graphic_config.source + '</div>\r';
     }
-    html += '</div>';
+    html += '</figcaption>';
   }
 
   // CSS
