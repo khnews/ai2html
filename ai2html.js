@@ -58,7 +58,7 @@ var defaultSettings = {
   "promo_image_width": 1024,
   "image_format": ["auto"],  // Options: auto, png, png24, jpg, svg
   "write_image_files": true,
-  "responsiveness": "fixed", // Options: fixed, dynamic
+  "responsiveness": "dynamic", // Options: fixed, dynamic
   "max_width": "",
   "output": "one-file",      // Options: one-file, multiple-files
   "project_name": "",        // Defaults to the name of the AI file
@@ -3863,6 +3863,7 @@ function generateArtboardDiv(ab, settings) {
 function generateArtboardCss(ab, textClasses, settings) {
   //get widths in order to generate display css
   var widthRange = getArtboardWidthRange(ab, settings);
+  var visibleRange = getArtboardVisibilityRange(ab, settings);
   
   var t3 = '\t',
       t4 = t3 + '\t',
@@ -3877,10 +3878,10 @@ function generateArtboardCss(ab, textClasses, settings) {
   
   //display when it's the right width
   if(isFalse(settings.include_resizer_script)) {
-    if (widthRange[1] == Infinity) {
-      css += t3 + '@media screen and (min-width: ' +  widthRange[0] + 'px) {\r';
+    if (visibleRange[1] == Infinity) {
+      css += t3 + '@media screen and (min-width: ' + visibleRange[0] + 'px) {\r';
     } else {
-      css += t3 + '@media screen and (max-width: ' + widthRange[1] + 'px) and (min-width: ' +  widthRange[0] + 'px) {\r';
+      css += t3 + '@media screen and (max-width: ' + visibleRange[1] + 'px) and (min-width: ' + visibleRange[0] + 'px) {\r';
     }
     css += t3 + abId + ' {\r';
     css += t4 + 'display: block !important;\r';
@@ -4177,7 +4178,7 @@ function generateOutputHtml(content, pageName, settings) {
   }
 
   //get info on chart hed, dek etc from json file
-  var graphic_config_file = app.activeDocument.path + '/graphic-config.json';
+  var graphic_config_file = app.activeDocument.path + '/' + docName + '-' + 'graphic-config.json';
   var jsonStr = readFile(graphic_config_file);
   graphic_config = JSON.parse(jsonStr);
 
