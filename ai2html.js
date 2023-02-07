@@ -76,7 +76,7 @@ var defaultSettings = {
   "png_transparent": false,
   "png_number_of_colors": 128, // Number of colors in 8-bit PNG image (1-256)
   "jpg_quality": 60,
-  "center_html_output": true,
+  "center_html_output": false, // CHANGED FOR KHN
   "use_2x_images_if_possible": true,
   "use_lazy_loader": false,
   "include_resizer_classes": false, // Triggers an error (feature was removed)
@@ -102,6 +102,11 @@ var defaultSettings = {
   //   display_for_promotion_only, constrain_width_to_text_column,
   //   compatibility, interactive_size, scoop_publish_fields, scoop_asset_id,
   //   scoop_username, scoop_slug, scoop_external_edit_key
+  
+  //KHN SPECIFIC SETTINGS
+  "include_pym": true,
+  "graphic_config": "",
+  "graphic_css": "khn-graphic.css", //style for chart header and footer
 
   // List of settings to include in the "ai2html-settings" text block
   "settings_block": [
@@ -114,12 +119,13 @@ var defaultSettings = {
     "image_output_path",
     "local_preview_template",
     "png_number_of_colors",
-    "jpg_quality",
-    "headline",
+    "jpg_quality"
+    // removed for KHN
+    /*"headline",
     "leadin",
     "notes",
     "sources",
-    "credit"
+    "credit"*/
   ],
 
   // list of settings to include in the config.yml file
@@ -1376,10 +1382,11 @@ function initSpecialTextBlocks() {
 function initDocumentSettings(textBlockSettings) {
   var settings = extend({}, defaultSettings); // copy default settings
 
-  if (wantTimesPreviewSettings(textBlockSettings)) {
+  //turned off for KHN
+  /*if (wantTimesPreviewSettings(textBlockSettings)) {
     // NYT settings are only applied in an NYT Preview context
     applyTimesSettings(settings);
-  }
+  }*/
 
   // merge external settings into @settings
   extendSettings(settings, readExternalSettings());
@@ -4106,6 +4113,12 @@ function generateArtboardDiv(ab, settings) {
 }
 
 function generateArtboardCss(ab, cssRules, settings) {
+  //KHN flavor ai2html
+  //get widths in order to generate display css
+  var widthRange = getArtboardWidthRange(ab, settings);
+  var visibleRange = getArtboardVisibilityRange(ab, settings);
+  
+  
   var t3 = '\t',
       t4 = t3 + '\t',
       abId = '#' + nameSpace + getArtboardFullName(ab, settings),
@@ -4113,8 +4126,25 @@ function generateArtboardCss(ab, cssRules, settings) {
   css += t3 + abId + ' {\r';
   css += t4 + 'position:relative;\r';
   css += t4 + 'overflow:hidden;\r';
+  //css += t3 + '}\r';
+  
+  //KHN flavor ai2html
+  //don't display on wrong widths
+  css += t4 + 'display:none;\r';
   css += t3 + '}\r';
 
+  //display when it's the right width
+  if(isFalse(settings.include_resizer_script)) {
+    if (visibleRange[1] == Infinity) {
+      css += t3 + '@media screen and (min-width: ' + visibleRange[0] + 'px) {\r';
+    } else {
+      css += t3 + '@media screen and (max-width: ' + visibleRange[1] + 'px) and (min-width: ' + visibleRange[0] + 'px) {\r';
+    }
+    css += t3 + abId + ' {\r';
+    css += t4 + 'display: block !important;\r';
+    css += t3 + '}\r}\r';
+  }
+  
   // classes for paragraph and character styles
   forEach(cssRules, function(cssBlock) {
     css += t3 + abId + ' ' + cssBlock;
@@ -4380,6 +4410,11 @@ function addCustomContent(content, customBlocks) {
     content.js += '\r<!-- Custom JS -->\r' + customBlocks.js.join('\r') + '\r';
   }
 }
+ 
+// KHN flavor ai2html
+//json2 from https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js
+"object"!=typeof JSON&&(JSON={}),function(){"use strict";function f(t){return t<10?"0"+t:t}function this_value(){return this.valueOf()}function quote(t){return rx_escapable.lastIndex=0,rx_escapable.test(t)?'"'+t.replace(rx_escapable,function(t){var e=meta[t];return"string"==typeof e?e:"\\u"+("0000"+t.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+t+'"'}function str(t,e){var r,n,o,u,f,a=gap,i=e[t];switch(i&&"object"==typeof i&&"function"==typeof i.toJSON&&(i=i.toJSON(t)),"function"==typeof rep&&(i=rep.call(e,t,i)),typeof i){case"string":return quote(i);case"number":return isFinite(i)?String(i):"null";case"boolean":case"null":return String(i);case"object":if(!i)return"null";if(gap+=indent,f=[],"[object Array]"===Object.prototype.toString.apply(i)){for(u=i.length,r=0;r<u;r+=1)f[r]=str(r,i)||"null";return o=0===f.length?"[]":gap?"[\n"+gap+f.join(",\n"+gap)+"\n"+a+"]":"["+f.join(",")+"]",gap=a,o}if(rep&&"object"==typeof rep)for(u=rep.length,r=0;r<u;r+=1)"string"==typeof rep[r]&&(n=rep[r],o=str(n,i),o&&f.push(quote(n)+(gap?": ":":")+o));else for(n in i)Object.prototype.hasOwnProperty.call(i,n)&&(o=str(n,i),o&&f.push(quote(n)+(gap?": ":":")+o));return o=0===f.length?"{}":gap?"{\n"+gap+f.join(",\n"+gap)+"\n"+a+"}":"{"+f.join(",")+"}",gap=a,o}}var rx_one=/^[\],:{}\s]*$/,rx_two=/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,rx_three=/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,rx_four=/(?:^|:|,)(?:\s*\[)+/g,rx_escapable=/[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,rx_dangerous=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;"function"!=typeof Date.prototype.toJSON&&(Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+f(this.getUTCMonth()+1)+"-"+f(this.getUTCDate())+"T"+f(this.getUTCHours())+":"+f(this.getUTCMinutes())+":"+f(this.getUTCSeconds())+"Z":null},Boolean.prototype.toJSON=this_value,Number.prototype.toJSON=this_value,String.prototype.toJSON=this_value);var gap,indent,meta,rep;"function"!=typeof JSON.stringify&&(meta={"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},JSON.stringify=function(t,e,r){var n;if(gap="",indent="","number"==typeof r)for(n=0;n<r;n+=1)indent+=" ";else"string"==typeof r&&(indent=r);if(rep=e,e&&"function"!=typeof e&&("object"!=typeof e||"number"!=typeof e.length))throw new Error("JSON.stringify");return str("",{"":t})}),"function"!=typeof JSON.parse&&(JSON.parse=function(text,reviver){function walk(t,e){var r,n,o=t[e];if(o&&"object"==typeof o)for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(n=walk(o,r),void 0!==n?o[r]=n:delete o[r]);return reviver.call(t,e,o)}var j;if(text=String(text),rx_dangerous.lastIndex=0,rx_dangerous.test(text)&&(text=text.replace(rx_dangerous,function(t){return"\\u"+("0000"+t.charCodeAt(0).toString(16)).slice(-4)})),rx_one.test(text.replace(rx_two,"@").replace(rx_three,"]").replace(rx_four,"")))return j=eval("("+text+")"),"function"==typeof reviver?walk({"":j},""):j;throw new SyntaxError("JSON.parse")})}();
+//# sourceMappingURL=json2.min.js.map
 
 // Wrap content HTML in a <div>, add styles and resizer script, write to a file
 function generateOutputHtml(content, pageName, settings) {
@@ -4397,6 +4432,15 @@ function generateOutputHtml(content, pageName, settings) {
     containerClasses += ' ai2html-responsive';
   }
 
+  // KHN flavor ai2html
+  var pageHead;
+  if (isTrue(settings.include_pym)) {
+    var pymJs = '<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>\r' +
+        '<script type="text/javascript">\r\t var pymChild = new pym.Child();\r\t pymChild.sendHeight();\r</script>\r';
+  }
+
+  pageHead = '<!DOCTYPE html>\r<html>\r\r<head>\r<meta charset="UTF-8">\r';
+  
   // comments
   commentBlock = '<!-- Generated by ai2html v' + scriptVersion + ' - ' +
     getDateTimeStamp() + ' -->\r' + '<!-- ai file: ' + doc.name + ' -->\r';
@@ -4409,7 +4453,40 @@ function generateOutputHtml(content, pageName, settings) {
   }
 
   // HTML
-  html = '<div id="' + containerId + '" class="' + containerClasses + '">\r';
+  // KHN flavor ai2html
+  // readFile code from https://github.com/newsdev/ai-scripts
+  function readFile(filename) {
+    var fileObj = new File(filename);
+    fileObj.open('r');
+    fileObj.seek(0, 0);
+    var out = '';
+    while(!fileObj.eof) {
+        out += fileObj.readln()+'\n';
+    }
+    fileObj.close();
+    return out;
+  }
+
+  //get info on chart hed, dek etc from json file
+  var graphic_config_file = app.activeDocument.path + '/' + docName + '-' + 'graphic-config.json';
+  if (!fileExists(graphic_config_file)) {
+    error("Graphic config file is not detected. The config file should be in the same folder as your .ai file with the same slug name. The expected file path is: " + graphic_config_file);
+  }
+  var jsonStr = readFile(graphic_config_file);
+  graphic_config = JSON.parse(jsonStr);
+
+  html = "<body>\r\t\<figure>\r";
+  //graphic hed, dek, etc
+  if (graphic_config.hed) {
+    html += '<div class="graphic-header">\r\t<h3 class="graphic-hed">' + graphic_config.hed + '</h3>\r';
+    if (graphic_config.dek) {
+      html += '<h4 class="graphic-dek">' + graphic_config.dek + '</h4>\r';
+    }
+    html += '</div>\r';
+  }
+
+  html += '<div id="' + containerId + '" class="ai2html" role="img" aria-label="' + graphic_config.alttext + '">\r';
+  //html = '<div id="' + containerId + '" class="' + containerClasses + '">\r';
   if (linkSrc) {
     // optional link around content
     html += '\t<a class="' + nameSpace + 'ai2htmlLink" href="' + linkSrc + '">\r';
@@ -4420,16 +4497,39 @@ function generateOutputHtml(content, pageName, settings) {
   }
   html += '\r</div>\r';
 
+  //KHN footer
+  if (graphic_config.note || graphic_config.source || graphic_config.credit) {
+    html += '<figcaption class="graphic-footer">\r';
+    if (graphic_config.note) {
+      html += '\t<div class="graphic-foot">' + graphic_config.note + '</div>\r';
+    }
+    if (graphic_config.credit) {
+      html += '\t<div class="graphic-foot">' + graphic_config.credit + '</div>\r';
+    }
+    if (graphic_config.source) {
+      html += '\t<div class="graphic-foot">' + graphic_config.source + '</div>\r';
+    }
+    html += '</figcaption>\r</figure>\r</body>\r</html>';
+  }
   // CSS
-  css = '<style media="screen,print">\r' +
+  // css = '<style media="screen,print">\r' +
+  //  generatePageCss(containerId, settings) +
+  //  content.css +
+  //  '\r</style>\r';
+
+  // CSS
+  //uses custom khn style file for header and footer
+  css = '<link rel="stylesheet" href="khn-graphic.css">\r<style media="screen,print">\r' +
     generatePageCss(containerId, settings) +
     content.css +
-    '\r</style>\r';
-
+    '\r</style>\r</head>\r\r';
+  
   // JS
-  js = content.js + responsiveJs;
+  //js = content.js + responsiveJs;
+  js = content.js + responsiveJs + pymJs;
 
-  textForFile =  '\r' + commentBlock + css + '\r' + html + '\r' + js +
+  //textForFile =  '\r' + commentBlock + css + '\r' + html + '\r' + js +
+  textForFile = '\r' + commentBlock + pageHead + css + '\r' + html + '\r' + js +
      '<!-- End ai2html' + ' - ' + getDateTimeStamp() + ' -->\r';
 
   textForFile = applyTemplate(textForFile, settings);
