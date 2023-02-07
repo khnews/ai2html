@@ -4503,11 +4503,11 @@ function generateOutputHtml(content, pageName, settings) {
     if (graphic_config.note) {
       html += '\t<div class="graphic-foot">' + graphic_config.note + '</div>\r';
     }
-    if (graphic_config.credit) {
-      html += '\t<div class="graphic-foot">' + graphic_config.credit + '</div>\r';
-    }
     if (graphic_config.source) {
       html += '\t<div class="graphic-foot">' + graphic_config.source + '</div>\r';
+    }
+    if (graphic_config.credit) {
+      html += '\t<div class="graphic-foot">' + graphic_config.credit + '</div>\r';
     }
     html += '</figcaption>\r</figure>\r</body>\r</html>';
   }
@@ -4518,8 +4518,8 @@ function generateOutputHtml(content, pageName, settings) {
   //  '\r</style>\r';
 
   // CSS
-  //uses custom khn style file for header and footer
-  css = '<link rel="stylesheet" href="khn-graphic.css">\r<style media="screen,print">\r' +
+  //uses custom khn style file for header and footer plus loads our fonts
+  css = '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\r<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\r<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">\r<link rel="stylesheet" href="khn-graphic.css">\r<style media="screen,print">\r' +
     generatePageCss(containerId, settings) +
     content.css +
     '\r</style>\r</head>\r\r';
