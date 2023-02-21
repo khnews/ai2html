@@ -148,7 +148,13 @@ var defaultSettings = {
     {"aifont":"Georgia","family":"georgia,'times new roman',times,serif","weight":"","style":""},
     {"aifont":"Georgia-Bold","family":"georgia,'times new roman',times,serif","weight":"bold","style":""},
     {"aifont":"Georgia-Italic","family":"georgia,'times new roman',times,serif","weight":"","style":"italic"},
-    {"aifont":"Georgia-BoldItalic","family":"georgia,'times new roman',times,serif","weight":"bold","style":"italic"}
+    {"aifont":"Georgia-BoldItalic","family":"georgia,'times new roman',times,serif","weight":"bold","style":"italic"},
+    
+    //KHN specific fonts
+    {"aifont":"SourceSansPro-Regular","family":"Source Sans Pro, Arial, sans-serif","weight":"","style":""},
+    {"aifont":"SourceSansPro-Bold","family":"Source Sans Pro, Arial, sans-serif","weight":"bold","style":""},
+    {"aifont":"SourceSansPro-It","family":"Source Sans Pro, Arial, sans-serif","weight":"","style":"italic"},
+    {"aifont":"SourceSansPro-BoldIt","family":"Source Sans Pro, Arial, sans-serif","weight":"bold","style":"italic"}
   ],
 
   // Width ranges for responsive breakpoints (obsolete, will be removed)
